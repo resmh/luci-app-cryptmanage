@@ -1,0 +1,40 @@
+name: master-CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Pack luci-app-cryptmanage.ipk
+        uses: resmh/action-packipk@master
+        with:
+          pkgname: luci-app-cryptmanage
+          pkgrepo: 1
+          pkggpgrepokey: ${{ secrets.GPGREPOKEY }}
+          pkgsignifyrepokey: ${{ secrets.SIGNIFYREPOKEY }}
+      
+      - name: Release luci-app-cryptmanage.ipk
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: false
+          title: "Automated Release"
+          files: |
+            luci-app-cryptmanage.ipk
+            Packages
+            Packages.asc
+            Packages.sig
+            luci_app_cryptmanage.gpg.pub
+            luci_app_cryptmanage.signify.pub
