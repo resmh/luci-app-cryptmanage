@@ -1,0 +1,11 @@
+{
+	"luci-app-cryptmanage": {
+		"description": "Grant UCI access for luci-app-cryptmanage",
+		"read": {
+			"uci": [ "luci" ]
+		},
+		"write": {
+			"uci": [ "luci" ]
+		}
+	}
+}

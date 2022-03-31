@@ -1,0 +1,147 @@
+<%#
+ Copyright 2012 Jo-Philipp Wich <jow@openwrt.org>
+ Licensed to the public under the Apache License 2.0.
+-%>
+
+<% css = [[
+
+.find {
+	height: 12em;
+	width: 30%;
+	float: left;
+	height: 12em;
+	margin: 5px;
+	position: relative;
+}
+
+.mountbox {
+	height: 15em;
+	width: 25%;
+	float: left;
+	
+	margin: 5px;
+	position: relative;
+}
+
+.mountbox h3 {
+	font-size: 1.5em;
+	line-height: 2em;
+	margin: 0;
+}
+
+.mountbox input[type="password"] {
+	width: 100%;
+}
+  
+.mountbox div {
+  text-align: center;
+}
+
+]] -%>
+
+<%+header%>
+
+<script type="text/javascript">//<![CDATA[
+	var stxhr = new XHR();
+
+	function command_mount(ev, id)
+	{
+		var args;
+		if (id) {
+			var field = document.getElementById(id);
+			if (field) { args = encodeURIComponent(field.value); }
+		}
+
+		var legend = document.getElementById('command-rc-legend');
+		var output = document.getElementById('command-rc-output');
+
+		if (legend && output)
+		{
+			output.innerHTML =
+				'<img src="<%=resource%>/icons/loading.gif" alt="<%:Loading%>" style="vertical-align:middle" /> ' +
+				'<%:Waiting for command to complete...%>'
+			;
+
+			legend.parentNode.style.display = 'block';
+			legend.style.display = 'inline';
+
+			stxhr.get('<%=url('admin/system/cryptmanage/mount')%>' + (id ? '/' + id + (args ? '/' + args : '') : ''), null,
+				function(x, st)
+				{
+					if (st)
+					{
+						if (st.binary)
+							st.stdout = '[<%:Binary data not displayed, download instead.%>]';
+
+						legend.style.display = 'none';
+						output.innerHTML = String.format(
+							'<pre><strong># %h\n</strong>%h<span style="color:red">%h</span></pre>' +
+							'<div class="alert-message warning">%s (<%:Code:%> %d)</div>',
+							st.command, st.stdout, st.stderr,
+							(st.exitcode == 0) ? '<%:Command successful%>' : '<%:Command failed%>',
+							st.exitcode);
+					}
+					else
+					{
+						legend.style.display = 'none';
+						output.innerHTML = '<span class="error"><%:Failed to execute command!%></span>';
+					}
+
+					location.hash = '#output';
+				}
+			);
+		}
+
+		ev.preventDefault();
+	}
+
+//]]></script>
+
+<%
+	local uci = require "luci.model.uci".cursor()
+	local devices = { }
+
+	uci:foreach("cryptmanage", "cryptdevice", function(s) devices[#devices+1] = s end)
+%>
+
+<form method="get" action="<%=pcdata(FULL_REQUEST_URI)%>">
+	<div class="cbi-map">
+		<h2 name="content"><%:Cryptsetup Devices%></h2>
+		<div class="findbox">
+			<div><button class="cbi-button cbi-button-download" onclick="command_mount(event, '')"><%:Find new devices%></button></div>
+		</div>
+		<% if #devices == 0 then %>
+			<div class="cbi-section">
+				<div class="table cbi-section-table">
+					<div class="tr cbi-section-table-row">
+						<p>
+							<em><%:No devices have been added yet. Click on find to display available devices.%></em>
+						</p>
+					</div>
+				</div>
+			</div>
+		<% else %>
+			<fieldset class="cbi-section">
+				<% local _, device; for _, device in ipairs(devices) do %>
+				<div class="mountbox">
+					<h3><%=pcdata(device.name)%></h3>
+					<p><%:UUID:%><br /><code><%=pcdata(device.uuid)%></code></p>
+					<p><%:Password:%><br /><input type="password" id="<%=device['.name']%>" /></p>
+					<div><button class="cbi-button cbi-button-apply" onclick="command_mount(event, '<%=device['.name']%>')"><%:(U)mount%></button></div>
+				</div>
+				<% end %>
+
+				<br style="clear:both" /><br />
+				<a name="output"></a>
+			</fieldset>
+		<% end %>
+
+	</div>
+
+	<fieldset class="cbi-section" style="display:none">
+		<legend id="command-rc-legend"><%:Collecting data...%></legend>
+		<span id="command-rc-output"></span>
+	</fieldset>
+</form>
+
+<%+footer%>

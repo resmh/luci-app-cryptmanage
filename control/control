@@ -1,0 +1,14 @@
+Package: luci-app-cryptmanage
+Depends: libc, luci-compat, bash, cryptsetup
+Source: feeds/resmh/luci-app-cryptmanage
+SourceName: luci-app-cryptmanage
+Section: luci
+Maintainer: Michael Hammes
+Architecture: all
+Description:  LuCI frontend to detecting, opening and closing LUKS devices.
+Installed-Size: 59000
+Filename: luci-app-cryptmanage.ipk
+Version: 0.1.0
+SourceDateEpoch: 
+Size: 
+SHA256sum: 
