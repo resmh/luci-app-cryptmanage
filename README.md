@@ -15,16 +15,13 @@ Please note: This application has been subjected to non-exhaustive internal test
 ```opkg install https://github.com/resmh/luci-app-cryptmanage/releases/download/latest/luci-app-cryptmanage.ipk```
 
 ## Automatic Updates
-- Add releases to your ```/etc/opkg/customfeeds.conf```:
+Add repository, add repository key, update package lists and install:
 
-```src luci_app_cryptmanage https://github.com/resmh/luci-app-cryptmanage/releases/download/latest```
-
-- Upload ```luci_app_cryptmanage.signify.pub``` from this repository to a temporary location
-
-```/tmp/luci_app_cryptmanage.signify.pub```
-
-- Associate key with opkg
-
-```opkg-key add /tmp/luci_app_cryptmanage.signify.pub```
-
-- Delete temporary file, call ```opkg update``` and finally ```opkg install luci-app-cryptmanage```
+```
+echo 'src luci_app_cryptmanage https://github.com/resmh/luci-app-cryptmanage/releases/download/latest' >> /etc/opkg/customfeeds.conf; \
+wget -O /tmp/luci_app_cryptmanage https://github.com/resmh/luci-app-cryptmanage/releases/download/latest/luci_app_cryptmanage.signify.pub; \
+opkg-key add /tmp/luci_app_cryptmanage; \
+rm /tmp/luci_app_cryptmanage; \
+opkg update; \
+opkg install luci-app-cryptmanage
+```
