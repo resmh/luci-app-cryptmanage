@@ -1,5 +1,5 @@
 Package: luci-app-cryptmanage
-Depends: libc, luci-compat, bash, cryptsetup
+Depends: libc, luci-compat, bash, kmod-crypto-ecb, kmod-crypto-xts, kmod-crypto-iv, kmod-crypto-misc, kmod-crypto-user, cryptsetup, kmod-fs-ext4, e2fsprogs
 Source: feeds/resmh/luci-app-cryptmanage
 SourceName: luci-app-cryptmanage
 Section: luci
